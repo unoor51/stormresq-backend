@@ -18,6 +18,8 @@ class EvacueeController extends Controller
             'needsDisabled' => 'boolean',
             'latitude' => 'nullable|numeric',
             'longitude' => 'nullable|numeric',
+            'address' => 'required|string',
+            'request_for' => 'required|in:myself,someone',
         ]);
 
         $evacuee = Evacuee::create([
@@ -28,6 +30,9 @@ class EvacueeController extends Controller
             'needs_disabled' => $validated['needsDisabled'] ?? false,
             'latitude' => $validated['latitude'] ?? null,
             'longitude' => $validated['longitude'] ?? null,
+            'status' => 'pending',
+            'address' => $validated['address'] ?? null,
+            'request_for' => $validated['request_for'],
         ]);
 
         return response()->json([

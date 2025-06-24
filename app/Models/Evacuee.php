@@ -16,6 +16,14 @@ class Evacuee extends Model
         'needs_disabled',
         'latitude',
         'longitude',
+        'rescuer_id',
+        'status', 
+        'address',
+        'request_for'
     ];
-
+    
+    public function rescuer()
+    {
+        return $this->belongsTo(Rescuer::class);
+    }
 }
