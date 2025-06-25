@@ -4,6 +4,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\EvacueeController;
 use App\Http\Controllers\API\RescuerAuthController;
+use App\Http\Controllers\Api\AdminAuthController;
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -20,7 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('/evacuees', [EvacueeController::class, 'store']);
-
+// Rescuer Routes
 Route::prefix('rescuer')->group(function () {
     Route::post('/register', [RescuerAuthController::class, 'register']);
     Route::post('/login', [RescuerAuthController::class, 'login']);
@@ -36,4 +38,20 @@ Route::prefix('rescuer')->group(function () {
     Route::middleware('auth:sanctum')->post('/complete/{id}', [RescuerAuthController::class, 'completeRescue']);
     Route::middleware('auth:sanctum')->get('/all-evacuees', [RescuerAuthController::class, 'allEvacuees']);
 
+});
+// Admin Routes
+Route::prefix('admin')->group(function () {
+    Route::post('/login', [AdminAuthController::class, 'login']);
+    Route::post('/register', [AdminAuthController::class, 'register']);
+
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::post('/logout', [AdminAuthController::class, 'logout']);
+        Route::get('/dashboard-stats', [AdminAuthController::class, 'dashboardStats']);
+        Route::get('/dashboard-stats', [AdminAuthController::class, 'dashboardStats']);
+        Route::get('/rescuers', [AdminAuthController::class, 'allRescuers']);
+        Route::put('/rescuers/{id}/approve', [AdminAuthController::class, 'approveRescuer']);
+        Route::put('/rescuers/{id}/reject', [AdminAuthController::class, 'rejectRescuer']);
+        Route::get('/rescues', [AdminAuthController::class, 'rescueRequests']);
+
+    });
 });

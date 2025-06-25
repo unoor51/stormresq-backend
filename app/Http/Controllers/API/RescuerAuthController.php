@@ -26,6 +26,7 @@ class RescuerAuthController extends Controller
             'last_name' => $validated['last_name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'status' => 'pending',
         ]);
 
         $token = $rescuer->createToken('auth_token')->plainTextToken;
@@ -48,6 +49,10 @@ class RescuerAuthController extends Controller
 
         if (!$rescuer || !Hash::check($request->password, $rescuer->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
+        }
+
+        if ($rescuer->status !== 'approved') {
+            return response()->json(['message' => 'Your account is not yet approved'], 403);
         }
 
         $token = $rescuer->createToken('auth_token')->plainTextToken;

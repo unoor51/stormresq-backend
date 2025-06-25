@@ -3,27 +3,21 @@
 namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class Rescuer extends Authenticatable
+class Admin extends Authenticatable
 {
-    use HasApiTokens;
+    use HasApiTokens, Notifiable;
 
     protected $fillable = [
-        'phone',
-        'first_name',
-        'last_name',
+        'name',
         'email',
         'password',
-        'status',
     ];
 
     protected $hidden = [
         'password',
+        'remember_token',
     ];
-    
-    public function evacuees()
-    {
-        return $this->hasMany(Evacuee::class);
-    }
 }
