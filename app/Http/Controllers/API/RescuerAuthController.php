@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Rescuer;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Services\ClickSendService;
 
 class RescuerAuthController extends Controller
 {
@@ -63,6 +64,54 @@ class RescuerAuthController extends Controller
             'rescuer' => $rescuer,
         ]);
     }
+    // Get Profile
+    public function profile(Request $request)
+    {
+        return response()->json([
+            'rescuer' => $request->user(),
+        ]);
+    }
+    // Get Rescuer Dashboard Stats
+    public function dashboardStats(Request $request)
+    {
+        $rescuer = $request->user();
+        $user_name = $rescuer->first_name." ".$rescuer->last_name;
+        $assigned_rescues = $rescuer->evacuees()->where('status','assigned')->count();
+        $completed_rescues = $rescuer->evacuees()->where('status','completed')->count();
+        $cancelled_rescues = $rescuer->evacuees()->where('status','cancelled')->count();
+        
+        return response()->json([
+            'user_name' => $user_name,
+            'assigned_rescues' => $assigned_rescues,
+            'completed_rescues' => $completed_rescues,
+            'cancelled_rescues' => $cancelled_rescues,
+        ]);
+    }
+    // Update Profile
+    public function updateProfile(Request $request)
+    {
+        $rescuer = $request->user();
+
+        $validated = $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'phone' => 'required|string',
+            'password' => 'nullable|min:6',
+        ]);
+
+        $rescuer->first_name = $validated['first_name'];
+        $rescuer->last_name = $validated['last_name'];
+        $rescuer->phone = $validated['phone'];
+
+        if (!empty($validated['password'])) {
+            $rescuer->password = Hash::make($validated['password']);
+        }
+
+        $rescuer->save();
+
+        return response()->json(['message' => 'Profile updated']);
+    }
+
     // Assigned Rescues Requests
     public function assignedRescues(Request $request)
     {
@@ -95,6 +144,17 @@ class RescuerAuthController extends Controller
         return response()->json([
             'rescues' => $evacuees
         ]);
+    }
+    
+    public function notifyRescuer(Request $request, ClickSendService $clickSend)
+    {
+        // Sample data - in real use, you’d fetch from DB or form
+        $phone = $request->input('phone'); // Example: +15555555555
+        $message = 'You have been assigned a new rescue request. Please check your dashboard.';
+
+        $response = $clickSend->sendSMS($phone, $message);
+
+        return response()->json($response);
     }
     // availableRescues
     public function availableRescues()
@@ -131,7 +191,17 @@ class RescuerAuthController extends Controller
         $evacuee->rescuer_id = $rescuer->id;
         $evacuee->status = 'assigned';
         $evacuee->save();
+         //3. Send SMS to Rescuer
+        // $clickSend->sendSMS(
+        //     $rescuer->phone,
+        //     "New Assignment:\nEvacuee: {$evacuee->first_name} {$evacuee->last_name}\nPhone: {$evacuee->phone}\nLocation: {$evacuee->address}"
+        // );
 
+        // 📲 4. Send SMS to Evacuee
+        // $clickSend->sendSMS(
+        //     $evacuee->phone,
+        //     "Rescuer Assigned:\nName: {$rescuer->first_name} {$rescuer->last_name}\nPhone: {$rescuer->phone}\nThey're on their way!"
+        // );
         return response()->json(['message' => 'Rescue successfully assigned.']);
     }
 
