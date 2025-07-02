@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Evacuee;
+use App\Models\Settings;
 
 class EvacueeController extends Controller
 {
@@ -35,8 +36,9 @@ class EvacueeController extends Controller
             'request_for' => $validated['request_for'],
         ]);
 
+        $success_message = Settings::where('key', 'evacuee_success_message')->first();
         return response()->json([
-            'message' => 'Request Submitted Successfully.',
+            'message' => $success_message ? $success_message->value : 'Request submitted successfully.',
             'data' => $evacuee
         ], 201);
     }

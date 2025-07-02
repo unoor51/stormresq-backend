@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Admin;
 use App\Models\Rescuer;
+use App\Models\Settings;
 use Illuminate\Support\Facades\Hash;
 
 class AdminAuthController extends Controller
@@ -53,23 +54,30 @@ class AdminAuthController extends Controller
         ]);
     }
     // settings
-    public function settings($key){
-         $setting = Setting::where('key', $key)->first();
+    public function settings(){
+        $settings = Settings::all();
         return response()->json([
-            'message' => $setting ? $setting->value : null
+            'message' => 'Settings fetched successfully',
+            'settings' => $settings
         ]);
     }
-    
-    public function update(Request $request, $key)
+    // Update admin settings
+    public function update_settings(Request $request)
     {
-        $request->validate(['value' => 'required|string']);
+        $request->validate([
+            'settings' => 'required|array',
+            'settings.*.key' => 'required|string',
+            'settings.*.value' => 'nullable|string',
+        ]);
 
-        $setting = Setting::updateOrCreate(
-            ['key' => $key],
-            ['value' => $request->value]
-        );
-
-        return response()->json(['success' => true, 'setting' => $setting]);
+        foreach ($request->settings as $item) {
+            Settings::updateOrCreate(
+                ['key' => $item['key']],
+                ['value' => $item['value']]
+            );
+        }
+        $settings = Settings::all();
+        return response()->json(['message' => 'Setting saved.', 'setting' => $settings]);
     }
     // Admin Dashboard Stats
     public function dashboardStats()

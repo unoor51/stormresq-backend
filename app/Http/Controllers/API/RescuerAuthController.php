@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Rescuer;
+use App\Models\Settings;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Services\ClickSendService;
@@ -31,9 +32,9 @@ class RescuerAuthController extends Controller
         ]);
 
         $token = $rescuer->createToken('auth_token')->plainTextToken;
-
+        $success_message = Settings::where('key', 'rescuer_success_message')->first();
         return response()->json([
-            'message' => 'Registration successful',
+            'message' => $success_message ? $success_message->value : 'Request submitted successfully.',
             'token' => $token,
             'rescuer' => $rescuer,
         ], 201);
