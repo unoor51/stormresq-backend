@@ -52,6 +52,25 @@ class AdminAuthController extends Controller
             'admin' => $admin,
         ]);
     }
+    // settings
+    public function settings($key){
+         $setting = Setting::where('key', $key)->first();
+        return response()->json([
+            'message' => $setting ? $setting->value : null
+        ]);
+    }
+    
+    public function update(Request $request, $key)
+    {
+        $request->validate(['value' => 'required|string']);
+
+        $setting = Setting::updateOrCreate(
+            ['key' => $key],
+            ['value' => $request->value]
+        );
+
+        return response()->json(['success' => true, 'setting' => $setting]);
+    }
     // Admin Dashboard Stats
     public function dashboardStats()
     {
