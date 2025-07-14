@@ -158,14 +158,31 @@ class RescuerAuthController extends Controller
         return response()->json($response);
     }
     // availableRescues
-    public function availableRescues()
+    public function availableRescues(Request $request)
     {
-        $evacuees = \App\Models\Evacuee::whereNull('rescuer_id')->where('status','pending')->latest()->get();
+        $query = \App\Models\Evacuee::query()
+            ->whereNull('rescuer_id')
+            ->where('status', 'pending');
 
-        return response()->json([
-            'rescues' => $evacuees
-        ]);
+        // Apply search if present
+        if ($request->filled('search')) {
+            $search = $request->input('search');
+            $query->where(function ($q) use ($search) {
+                $q->where('phone', 'like', "%{$search}%")
+                ->orWhere('address', 'like', "%{$search}%")
+                ->orWhere('situation', 'like', "%{$search}%");
+            });
+        }
+
+        // Determine per page count (default 10)
+        $perPage = $request->input('per_page', 10);
+
+        // Paginate results
+        $evacuees = $query->orderBy('created_at', 'desc')->paginate($perPage);
+
+        return response()->json($evacuees);
     }
+
     // allEvacuees
     public function allEvacuees()
     {
