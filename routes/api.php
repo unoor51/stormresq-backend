@@ -48,7 +48,7 @@ Route::prefix('admin')->group(function () {
     Route::post('/login', [AdminAuthController::class, 'login']);
     Route::post('/register', [AdminAuthController::class, 'register']);
 
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'admin'])->group(function () {
         Route::post('/logout', [AdminAuthController::class, 'logout']);
         Route::get('/dashboard-stats', [AdminAuthController::class, 'dashboardStats']);
         Route::get('/rescuers', [AdminAuthController::class, 'allRescuers']);
