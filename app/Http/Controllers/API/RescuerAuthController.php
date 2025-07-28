@@ -112,7 +112,20 @@ class RescuerAuthController extends Controller
 
         return response()->json(['message' => 'Profile updated']);
     }
+    // updatePassword
+    public function updatePassword(Request $request)
+    {
+        $request->validate([
+            'new_password' => 'required|min:6',
+            'confirm_password' => 'required|same:new_password',
+        ]);
 
+        $rescuer = auth()->user();
+        $rescuer->password = Hash::make($request->new_password);
+        $rescuer->save();
+
+        return response()->json(['message' => 'Password updated successfully']);
+    }
     // Assigned Rescues Requests
     public function assignedRescues(Request $request)
     {

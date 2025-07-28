@@ -37,6 +37,7 @@ Route::prefix('rescuer')->group(function () {
     Route::middleware('auth:sanctum')->post('/assign/{id}', [RescuerAuthController::class, 'assignRescue']);
     Route::middleware('auth:sanctum')->post('/cancel/{id}', [RescuerAuthController::class, 'cancelRescue']);
     Route::middleware('auth:sanctum')->post('/complete/{id}', [RescuerAuthController::class, 'completeRescue']);
+    Route::middleware('auth:sanctum')->post('/update-password', [RescuerAuthController::class, 'updatePassword']);
     Route::middleware('auth:sanctum')->get('/all-evacuees', [RescuerAuthController::class, 'allEvacuees']);
     Route::middleware('auth:sanctum')->get('/profile', [RescuerAuthController::class, 'profile']);
     Route::middleware('auth:sanctum')->put('/profile', [RescuerAuthController::class, 'updateProfile']);
@@ -53,6 +54,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/rescuers', [AdminAuthController::class, 'allRescuers']);
         Route::put('/rescuers/{id}/approve', [AdminAuthController::class, 'approveRescuer']);
         Route::put('/rescuers/{id}/reject', [AdminAuthController::class, 'rejectRescuer']);
+        Route::delete('/rescuer/{id}', [AdminAuthController::class, 'deleteRescuer']);
         Route::get('/rescues', [AdminAuthController::class, 'rescueRequests']);
         Route::get('/settings', [AdminAuthController::class, 'settings']);
         Route::post('/settings', [AdminAuthController::class, 'update_settings']);

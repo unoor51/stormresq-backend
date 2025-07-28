@@ -146,7 +146,18 @@ class AdminAuthController extends Controller
 
         return response()->json(['rescues' => $rescues]);
     }
+    // Delete Rescuer
+    public function deleteRescuer($id)
+    {
+        $rescuer = Rescuer::find($id);
+        if (!$rescuer) {
+            return response()->json(['message' => 'Rescuer not found'], 404);
+        }
 
+        $rescuer->delete();
+
+        return response()->json(['message' => 'Rescuer deleted successfully']);
+    }
 
     // Admin logout
     public function logout(Request $request)
