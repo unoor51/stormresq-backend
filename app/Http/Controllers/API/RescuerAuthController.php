@@ -9,9 +9,26 @@ use App\Models\Settings;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use App\Services\ClickSendService;
+use App\Mail\RescuerRegistered; 
+use Illuminate\Support\Facades\Mail;
+use Exception;
+use Illuminate\Support\Facades\Log;
+
 
 class RescuerAuthController extends Controller
 {
+    public function testEmail(){
+        
+        $rescuer = Rescuer::find(2);
+        try {
+            Mail::to('developer.presstigers@gmail.com')->send(new RescuerRegistered($rescuer));
+            Log::info('Rescuer registration email sent successfully.');
+        } catch (Exception $e) {
+            Log::error('Failed to send rescuer registration email: ' . $e->getMessage());
+            // Optionally show user-friendly message or return error response
+        }
+    }
+
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -30,9 +47,10 @@ class RescuerAuthController extends Controller
             'password' => Hash::make($validated['password']),
             'status' => 'pending',
         ]);
-
+        Mail::to('developer.presstigers@gmail.com')->send(new RescuerRegistered($rescuer));
         $token = $rescuer->createToken('auth_token')->plainTextToken;
         $success_message = Settings::where('key', 'rescuer_success_message')->first();
+        
         return response()->json([
             'message' => $success_message ? $success_message->value : 'Request submitted successfully.',
             'token' => $token,
