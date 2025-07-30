@@ -25,10 +25,13 @@ Route::post('/evacuees', [EvacueeController::class, 'store']);
 // Rescuer Routes
 Route::prefix('rescuer')->group(function () {
     Route::post('/register', [RescuerAuthController::class, 'register']);
-    Route::get('/test-email', [RescuerAuthController::class, 'testEmail']);
+    // Route::get('/test-email', [RescuerAuthController::class, 'testEmail']);
     Route::post('/login', [RescuerAuthController::class, 'login']);
-    Route::post('/test-sms', [RescuerAuthController::class, 'notifyRescuer']);
-
+    // Route::post('/test-sms', [RescuerAuthController::class, 'notifyRescuer']);
+    
+    Route::post('/forgot-password', [RescuerAuthController::class, 'sendResetLinkEmail']);
+    Route::post('/reset-password', [RescuerAuthController::class, 'resetPassword']);
+    
     Route::middleware('auth:sanctum')->post('/logout', [RescuerAuthController::class, 'logout']);
     Route::middleware('auth:sanctum')->get('/assigned-rescues', [RescuerAuthController::class, 'assignedRescues']);
     Route::middleware('auth:sanctum')->get('/completed-rescues', [RescuerAuthController::class, 'completedRescues']);

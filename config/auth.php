@@ -72,6 +72,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
         ],
+        'rescuers' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\Rescuer::class,
+        ],
         // 'users' => [
         //     'driver' => 'database',
         //     'table' => 'users',
@@ -97,6 +101,12 @@ return [
         'users' => [
             'provider' => 'users',
             'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+        'rescuers' => [
+            'provider' => 'rescuers',
+            'table' => 'password_resets', // or 'password_resets' for older Laravel versions
             'expire' => 60,
             'throttle' => 60,
         ],

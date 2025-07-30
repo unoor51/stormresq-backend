@@ -13,6 +13,11 @@ use App\Mail\RescuerRegistered;
 use Illuminate\Support\Facades\Mail;
 use Exception;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Auth\Events\PasswordReset;
+use Illuminate\Support\Str;
+use App\Mail\RescuerResetPassword;
 
 
 class RescuerAuthController extends Controller
@@ -290,11 +295,61 @@ class RescuerAuthController extends Controller
         return response()->json(['message' => 'Rescue marked as completed']);
     }
 
-
+    //  Rescuer Logout functionlaity
     public function logout(Request $request)
     {
         $request->user()->tokens()->delete();
 
         return response()->json(['message' => 'Logout successful']);
     }
+    // Send password reet link to the email
+    public function sendResetLinkEmail(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email|exists:rescuers,email',
+        ]);
+
+        $rescuer = Rescuer::where('email', $validated['email'])->first();
+
+        // Generate token and save to password_resets table
+        $token = \Str::random(64);
+        \DB::table('password_resets')->updateOrInsert(
+            ['email' => $rescuer->email],
+            [
+                'email' => $rescuer->email,
+                'token' => \Hash::make($token),
+                'created_at' => now()
+            ]
+        );
+
+        $frontendUrl = "https://your-react-site.com/reset-password?token=$token&email={$rescuer->email}";
+
+        // Send custom reset email
+        Mail::to($rescuer->email)->send(new RescuerResetPassword($rescuer->first_name, $frontendUrl));
+
+        return response()->json(['message' => 'Reset link sent successfully']);
+    }
+
+    // Reset Password Function
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $status = Password::broker('rescuers')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($rescuer, $password) {
+                $rescuer->password = bcrypt($password);
+                $rescuer->save();
+            }
+        );
+
+        return $status === Password::PASSWORD_RESET
+            ? response()->json(['message' => 'Password has been reset.'])
+            : response()->json(['message' => 'Invalid token or email'], 400);
+    }
+
 }
