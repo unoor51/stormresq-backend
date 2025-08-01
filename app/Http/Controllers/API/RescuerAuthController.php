@@ -42,6 +42,9 @@ class RescuerAuthController extends Controller
             'last_name' => 'required|string|max:100',
             'email' => 'required|email|unique:rescuers',
             'password' => 'required|string|min:6',
+            'address' => 'required|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ]);
 
         $rescuer = Rescuer::create([
@@ -51,6 +54,9 @@ class RescuerAuthController extends Controller
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
             'status' => 'pending',
+            'address' => $validated['address'],
+            'latitude' => $validated['latitude'],
+            'longitude' => $validated['longitude'],
         ]);
         Mail::to('developer.presstigers@gmail.com')->send(new RescuerRegistered($rescuer));
         $token = $rescuer->createToken('auth_token')->plainTextToken;

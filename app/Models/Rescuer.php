@@ -17,6 +17,9 @@ class Rescuer extends Authenticatable
         'email',
         'password',
         'status',
+        'address',
+        'latitude',
+        'longitude',
     ];
 
     protected $hidden = [
