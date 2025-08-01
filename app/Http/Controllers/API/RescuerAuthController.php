@@ -46,7 +46,6 @@ class RescuerAuthController extends Controller
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
-
         $rescuer = Rescuer::create([
             'phone' => $validated['phone'],
             'first_name' => $validated['first_name'],
