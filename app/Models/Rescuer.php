@@ -20,6 +20,7 @@ class Rescuer extends Authenticatable
         'address',
         'latitude',
         'longitude',
+        'verification_token',
     ];
 
     protected $hidden = [

@@ -58,6 +58,8 @@ class RescuerAuthController extends Controller
             'longitude' => $validated['longitude'],
         ]);
         Mail::to('developer.presstigers@gmail.com')->send(new RescuerRegistered($rescuer));
+         // Send verification email to the rescuer
+        Mail::to($rescuer->email)->send(new \App\Mail\VerifyRescuerEmail($rescuer));
         $token = $rescuer->createToken('auth_token')->plainTextToken;
         $success_message = Settings::where('key', 'rescuer_success_message')->first();
         
@@ -81,6 +83,10 @@ class RescuerAuthController extends Controller
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
 
+        if (!$rescuer->hasVerifiedEmail()) {
+            return response()->json(['message' => 'Please verify your email before logging in.'], 403);
+        }
+
         if ($rescuer->status !== 'approved') {
             return response()->json(['message' => 'Your account is not yet approved'], 403);
         }
@@ -93,6 +99,22 @@ class RescuerAuthController extends Controller
             'rescuer' => $rescuer,
         ]);
     }
+
+    public function verifyEmail($token)
+    {
+        $rescuer = Rescuer::where('verification_token', $token)->first();
+
+        if (!$rescuer) {
+            return response()->view('rescuer.verify-failed', [], 400); // Optional: create this view for failed cases
+        }
+
+        $rescuer->email_verified_at = now();
+        $rescuer->verification_token = null;
+        $rescuer->save();
+
+        return view('rescuer.verify-success'); // Show success page
+    }
+
     // Get Profile
     public function profile(Request $request)
     {
