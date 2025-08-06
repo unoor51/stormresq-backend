@@ -7,26 +7,28 @@ use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class VerifyRescuerEmail extends Mailable
+class ApprovedRescuerAccount extends Mailable
 {
     use Queueable, SerializesModels;
-
     public $rescuer;
-
+    /**
+     * Create a new message instance.
+     *
+     * @return void
+     */
     public function __construct(Rescuer $rescuer)
     {
         $this->rescuer = $rescuer;
     }
-
     public function build()
     {
-        $verificationUrl = url('/rescuer/verify/' . $this->rescuer->verification_token);
+        $loginlink = url('/rescuer/login/');
 
-        return $this->subject('Verify Your Email Address')
-                    ->view('emails.verify-rescuer')
+        return $this->subject('Admin Approved Account')
+                    ->view('emails.approved-rescuer')
                     ->with([
                         'rescuer' => $this->rescuer,
-                        'verificationUrl' => $verificationUrl,
+                        'loginlink' => $loginlink,
                     ]);
     }
 }

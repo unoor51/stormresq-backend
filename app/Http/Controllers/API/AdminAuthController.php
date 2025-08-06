@@ -8,6 +8,7 @@ use App\Models\Admin;
 use App\Models\Rescuer;
 use App\Models\Settings;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 
 class AdminAuthController extends Controller
 {
@@ -115,7 +116,7 @@ class AdminAuthController extends Controller
         $rescuer = Rescuer::findOrFail($id);
         $rescuer->status = 'approved';
         $rescuer->save();
-
+        Mail::to($rescuer->email)->send(new \App\Mail\ApprovedRescuerAccount($rescuer));
         return response()->json(['message' => 'Rescuer approved']);
     }
     // Reject Rescuer

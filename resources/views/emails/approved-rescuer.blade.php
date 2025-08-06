@@ -17,17 +17,13 @@
                 <h1 style="color: #333333;">Hello {{ $rescuer->first_name }},</h1>
 
                 <p style="font-size: 16px; color: #555555;">
-                    Thank you for registering. Please verify your email by clicking the button below:
+                    Your account has been approved by the admin. Please login by clicking the below button.
                 </p>
 
                 <p style="text-align: center; margin: 30px 0;">
-                    <a href="{{ $verificationUrl }}" style="background-color: #E67E22; color: #ffffff; padding: 12px 24px; text-decoration: none; font-size: 16px; border-radius: 5px;">
-                        Verify Email
+                    <a href="{{ $loginlink }}" style="background-color: #E67E22; color: #ffffff; padding: 12px 24px; text-decoration: none; font-size: 16px; border-radius: 5px;">
+                        Login
                     </a>
-                </p>
-
-                <p style="font-size: 14px; color: #777777;">
-                    If you didn't create an account, no further action is required.
                 </p>
 
                 <p style="font-size: 14px; color: #777777;">

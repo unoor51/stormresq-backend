@@ -56,8 +56,9 @@ class RescuerAuthController extends Controller
             'address' => $validated['address'],
             'latitude' => $validated['latitude'],
             'longitude' => $validated['longitude'],
+            'verification_token' => Str::random(64),
         ]);
-        Mail::to('developer.presstigers@gmail.com')->send(new RescuerRegistered($rescuer));
+        // Mail::to('unoor51@gmail.com')->send(new RescuerRegistered($rescuer));
          // Send verification email to the rescuer
         Mail::to($rescuer->email)->send(new \App\Mail\VerifyRescuerEmail($rescuer));
         $token = $rescuer->createToken('auth_token')->plainTextToken;

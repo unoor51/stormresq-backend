@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\API\RescuerAuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -26,3 +27,4 @@ Route::get('/test-email', function () {
     return 'Email sent!';
 });
 
+Route::get('/rescuer/verify/{token}', [RescuerAuthController::class, 'verifyEmail']);
