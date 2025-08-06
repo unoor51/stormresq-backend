@@ -22,18 +22,6 @@ use App\Mail\RescuerResetPassword;
 
 class RescuerAuthController extends Controller
 {
-    public function testEmail(){
-        
-        $rescuer = Rescuer::find(2);
-        try {
-            Mail::to('developer.presstigers@gmail.com')->send(new RescuerRegistered($rescuer));
-            Log::info('Rescuer registration email sent successfully.');
-        } catch (Exception $e) {
-            Log::error('Failed to send rescuer registration email: ' . $e->getMessage());
-            // Optionally show user-friendly message or return error response
-        }
-    }
-
     public function register(Request $request)
     {
         $validated = $request->validate([
@@ -350,7 +338,7 @@ class RescuerAuthController extends Controller
             ]
         );
 
-        $frontendUrl = "https://your-react-site.com/reset-password?token=$token&email={$rescuer->email}";
+        $frontendUrl = url('/rescuer/reset-password?token=' . $token.'&email='.$rescuer->email);
 
         // Send custom reset email
         Mail::to($rescuer->email)->send(new RescuerResetPassword($rescuer->first_name, $frontendUrl));

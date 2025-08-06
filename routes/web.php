@@ -18,13 +18,4 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/test-email', function () {
-    \Mail::raw('This is a test email from StormResQ', function ($message) {
-        $message->to('developer.presstigers@gmail.com')
-                ->subject('Stormresq Subscription Email');
-    });
-
-    return 'Email sent!';
-});
-
 Route::get('/rescuer/verify/{token}', [RescuerAuthController::class, 'verifyEmail']);
