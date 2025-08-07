@@ -367,5 +367,22 @@ class RescuerAuthController extends Controller
             ? response()->json(['message' => 'Password has been reset.'])
             : response()->json(['message' => 'Invalid token or email'], 400);
     }
+    //  get nearby rescuees within 50m radius
+    public function nearbyRescuees(Request $request)
+    {
+        $lat = $request->lat;
+        $lng = $request->lng;
+        $radius = 5; // ~50 meters in km
 
+        $rescuees = \App\Models\Evacuee::select("*")
+            ->selectRaw("(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude)))) AS distance", [$lat, $lng, $lat])
+            ->having("distance", "<", $radius)
+            ->orderBy("distance", "asc")
+            ->where('status','pending')
+            ->get();
+
+        return response()->json([
+            'rescuees' => $rescuees,
+        ]);
+    }
 }

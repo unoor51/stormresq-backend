@@ -44,6 +44,7 @@ Route::prefix('rescuer')->group(function () {
     Route::middleware('auth:sanctum')->get('/profile', [RescuerAuthController::class, 'profile']);
     Route::middleware('auth:sanctum')->put('/profile', [RescuerAuthController::class, 'updateProfile']);
     Route::middleware('auth:sanctum')->get('/dashboard-stats', [RescuerAuthController::class, 'dashboardStats']);
+    Route::middleware('auth:sanctum')->get('/nearby-rescuees', [RescuerAuthController::class, 'nearbyRescuees']);
 });
 // Admin Routes
 Route::prefix('admin')->group(function () {
