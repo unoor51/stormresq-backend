@@ -48,25 +48,34 @@ class RescuerAuthController extends Controller
         ]);
         // Mail::to('unoor51@gmail.com')->send(new RescuerRegistered($rescuer));
          // Send verification email to the rescuer
-        Mail::to($rescuer->email)->send(new \App\Mail\VerifyRescuerEmail($rescuer));
+
         $token = $rescuer->createToken('auth_token')->plainTextToken;
         $success_message = Settings::where('key', 'rescuer_success_message')->first();
-        
-        return response()->json([
-            'message' => $success_message ? $success_message->value : 'Request submitted successfully.',
-            'token' => $token,
-            'rescuer' => $rescuer,
-        ], 201);
+
+        try {
+            Mail::to($rescuer->email)->send(new \App\Mail\VerifyRescuerEmail($rescuer));
+            return response()->json([
+                'message' => $success_message ? $success_message->value : 'Request submitted successfully.',
+                'token' => $token,
+                'rescuer' => $rescuer,
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Request submitted successfully. But email could not been sent due to error: '.  $e->getMessage(),
+                'token' => $token,
+                'rescuer' => $rescuer,
+            ], 201);
+        }
     }
 
     public function login(Request $request)
     {
         $request->validate([
-            'phone' => 'required',
+            'email' => 'required',
             'password' => 'required',
         ]);
 
-        $rescuer = Rescuer::where('phone', $request->phone)->first();
+        $rescuer = Rescuer::where('email', $request->email)->first();
 
         if (!$rescuer || !Hash::check($request->password, $rescuer->password)) {
             return response()->json(['message' => 'Invalid credentials'], 401);
@@ -75,9 +84,13 @@ class RescuerAuthController extends Controller
         if (!$rescuer->hasVerifiedEmail()) {
             return response()->json(['message' => 'Please verify your email before logging in.'], 403);
         }
-
-        if ($rescuer->status !== 'approved') {
+        // Account approved
+        if ($rescuer->status == 'pending' || $rescuer->status == 'rejected') {
             return response()->json(['message' => 'Your account is not yet approved'], 403);
+        }
+        // Account deactivated
+        if ($rescuer->status == 'deactivated') {
+            return response()->json(['message' => 'Your account has been deactivated by the admin. Please contact admin at info@stormresq.com.'], 403);
         }
 
         $token = $rescuer->createToken('auth_token')->plainTextToken;

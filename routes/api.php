@@ -57,6 +57,7 @@ Route::prefix('admin')->group(function () {
         Route::get('/rescuers', [AdminAuthController::class, 'allRescuers']);
         Route::put('/rescuers/{id}/approve', [AdminAuthController::class, 'approveRescuer']);
         Route::put('/rescuers/{id}/reject', [AdminAuthController::class, 'rejectRescuer']);
+        Route::put('/rescuer/{id}/deactivate', [AdminAuthController::class, 'deactivateRescuer']);
         Route::delete('/rescuer/{id}', [AdminAuthController::class, 'deleteRescuer']);
         Route::get('/rescues', [AdminAuthController::class, 'rescueRequests']);
         Route::get('/settings', [AdminAuthController::class, 'settings']);

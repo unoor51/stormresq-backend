@@ -116,8 +116,13 @@ class AdminAuthController extends Controller
         $rescuer = Rescuer::findOrFail($id);
         $rescuer->status = 'approved';
         $rescuer->save();
-        Mail::to($rescuer->email)->send(new \App\Mail\ApprovedRescuerAccount($rescuer));
-        return response()->json(['message' => 'Rescuer approved']);
+        try {
+            Mail::to($rescuer->email)->send(new \App\Mail\ApprovedRescuerAccount($rescuer));
+            return response()->json(['message' => 'Rescuer approved']);
+        } catch (\Exception $e) {
+            // Optional: return a response or handle fallback
+            return response()->json(['message' => 'Rescuer approved But email could not been sent.']);
+        }
     }
     // Reject Rescuer
     public function rejectRescuer($id)
@@ -128,6 +133,16 @@ class AdminAuthController extends Controller
 
         return response()->json(['message' => 'Rescuer rejected']);
     }
+    // Inactive Rescuer
+    public function deactivateRescuer($id)
+    {
+        $rescuer = Rescuer::findOrFail($id);
+        $rescuer->status = 'deactivated';
+        $rescuer->save();
+
+        return response()->json(['message' => 'Rescuer deactive successfully.']);
+    }
+    
     // Rescue Requests
     public function rescueRequests(Request $request)
     {
