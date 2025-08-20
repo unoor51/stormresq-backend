@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\EvacueeController;
 use App\Http\Controllers\API\RescuerAuthController;
 use App\Http\Controllers\API\AdminAuthController;
+use App\Http\Controllers\API\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,7 +17,14 @@ use App\Http\Controllers\API\AdminAuthController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+// User Auth Routes
+Route::post('/user/signup', [AuthController::class, 'register']);
+Route::post('/user/login', [AuthController::class, 'login']);
+Route::get('/user/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
 
+Route::middleware('auth:sanctum')->get('/user/profile', [AuthController::class, 'profile']);
+
+// Protected route
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
