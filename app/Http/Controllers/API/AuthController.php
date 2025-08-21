@@ -8,6 +8,9 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\ResetPassword;
+use Illuminate\Support\Facades\Password;
 
 class AuthController extends Controller
 {
@@ -40,8 +43,8 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         try {
-            // $verificationUrl = url('/user/verify/' . $user->verification_token);
-            // Mail::to($user->email)->send(new \App\Mail\VerifyRescuerEmail($user,$verificationUrl));
+            $verificationUrl = url('/user/verify/' . $user->verification_token);
+            Mail::to($user->email)->send(new \App\Mail\VerifyEmail($user,$verificationUrl,'user'));
 
             return response()->json([
                 'message' => 'User registered. Please check your email to verify.',
@@ -96,7 +99,7 @@ class AuthController extends Controller
     public function sendResetLinkEmail(Request $request)
     {
         $validated = $request->validate([
-            'email' => 'required|email|exists:rescuers,email',
+            'email' => 'required|email|exists:users,email',
         ]);
 
         $user = User::where('email', $validated['email'])->first();
@@ -115,7 +118,7 @@ class AuthController extends Controller
         $frontendUrl = url('/user/reset-password?token=' . $token.'&email='.$user->email);
 
         // Send custom reset email
-        // Mail::to($user->email)->send(new RescuerResetPassword($user->first_name, $frontendUrl));
+        Mail::to($user->email)->send(new ResetPassword($user->name, $frontendUrl));
 
         return response()->json(['message' => 'Reset link sent successfully']);
     }
@@ -129,11 +132,11 @@ class AuthController extends Controller
             'password' => 'required|min:6|confirmed',
         ]);
 
-        $status = Password::broker('rescuers')->reset(
+        $status = Password::broker('users')->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
-            function ($rescuer, $password) {
-                $rescuer->password = bcrypt($password);
-                $rescuer->save();
+            function ($user, $password) {
+                $user->password = bcrypt($password);
+                $user->save();
             }
         );
 
@@ -142,6 +145,53 @@ class AuthController extends Controller
             : response()->json(['message' => 'Invalid token or email'], 400);
     }
 
+    // Verfiy email after registration
+    public function verifyEmail($token)
+    {
+        $user = User::where('verification_token', $token)->first();
+
+        if (!$user) {
+            return response()->view('rescuer.verify-failed', [], 400); // Optional: create this view for failed cases
+        }
+
+        $user->email_verified_at = now();
+        $user->verification_token = null;
+        $user->save();
+
+        return view('user.verify-success'); // Show success page
+    }
+
+    // Get Profile
+    public function profile(Request $request)
+    {
+        return response()->json([
+            'rescuer' => $request->user(),
+        ]);
+    }
+
+     // Update Profile
+    public function updateProfile(Request $request)
+    {
+        $rescuer = $request->user();
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'phone' => 'required|string',
+            'password' => 'nullable|min:6',
+        ]);
+
+        $rescuer->name = $validated['name'];
+        $rescuer->phone = $validated['phone'];
+
+        if (!empty($validated['password'])) {
+            $rescuer->password = Hash::make($validated['password']);
+        }
+
+        $rescuer->save();
+
+        return response()->json(['message' => 'Profile updated']);
+    }
+    
     //  User Logout functionlaity
     public function logout(Request $request)
     {

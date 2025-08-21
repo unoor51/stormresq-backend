@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Support\Str;
-use App\Mail\RescuerResetPassword;
+use App\Mail\ResetPassword;
 
 
 class RescuerAuthController extends Controller
@@ -54,7 +54,7 @@ class RescuerAuthController extends Controller
 
         try {
             $verificationUrl = url('/rescuer/verify/' . $rescuer->verification_token);
-            Mail::to($rescuer->email)->send(new \App\Mail\VerifyRescuerEmail($rescuer, $verificationUrl));
+            Mail::to($rescuer->email)->send(new \App\Mail\VerifyEmail($rescuer, $verificationUrl,'rescuer'));
             return response()->json([
                 'message' => $success_message ? $success_message->value : 'Request submitted successfully.',
                 'token' => $token,
@@ -355,7 +355,7 @@ class RescuerAuthController extends Controller
         $frontendUrl = url('/rescuer/reset-password?token=' . $token.'&email='.$rescuer->email);
 
         // Send custom reset email
-        Mail::to($rescuer->email)->send(new RescuerResetPassword($rescuer->first_name, $frontendUrl));
+        Mail::to($rescuer->email)->send(new ResetPassword($rescuer->first_name, $frontendUrl));
 
         return response()->json(['message' => 'Reset link sent successfully']);
     }

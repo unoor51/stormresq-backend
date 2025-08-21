@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\RescuerAuthController;
+use App\Http\Controllers\API\AuthController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,3 +20,4 @@ Route::get('/', function () {
 });
 
 Route::get('/rescuer/verify/{token}', [RescuerAuthController::class, 'verifyEmail']);
+Route::get('/user/verify/{token}', [AuthController::class, 'verifyEmail']);

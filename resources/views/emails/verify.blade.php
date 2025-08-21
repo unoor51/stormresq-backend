@@ -14,8 +14,11 @@
         </tr>
         <tr>
             <td style="padding: 30px;">
-                <h1 style="color: #333333;">Hello {{ $rescuer->first_name }},</h1>
-
+                @if($role === 'rescuer')
+                    <h1 style="color: #333333;">Hello {{ $model->first_name }},</h1>
+                @else
+                    <h1 style="color: #333333;">Hello {{ $model->name }},</h1>
+                @endif
                 <p style="font-size: 16px; color: #555555;">
                     Thank you for registering. Please verify your email by clicking the button below:
                 </p>

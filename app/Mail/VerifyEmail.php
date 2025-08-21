@@ -2,30 +2,33 @@
 
 namespace App\Mail;
 
-use App\Models\Rescuer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class VerifyRescuerEmail extends Mailable
+class VerifyEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
-    public $rescuer;
+    public $model;       // Can be User or Rescuer
     public $frontendUrl;
-    public function __construct(Rescuer $rescuer, $frontendUrl)
+    public $role;        // To differentiate between user & rescuer
+
+    public function __construct($model, $frontendUrl, $role = 'user')
     {
-        $this->rescuer = $rescuer;
+        $this->model = $model;
         $this->frontendUrl = $frontendUrl;
+        $this->role = $role;
     }
 
     public function build()
     {
         return $this->subject('Verify Your Email Address')
-                    ->view('emails.verify-rescuer')
+                    ->view('emails.verify')
                     ->with([
-                        'rescuer' => $this->rescuer,
+                        'model' => $this->model,
                         'verificationUrl' => $this->frontendUrl,
+                        'role' => $this->role,
                     ]);
     }
 }
