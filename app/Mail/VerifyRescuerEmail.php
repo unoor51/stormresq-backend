@@ -12,21 +12,20 @@ class VerifyRescuerEmail extends Mailable
     use Queueable, SerializesModels;
 
     public $rescuer;
-
-    public function __construct(Rescuer $rescuer)
+    public $frontendUrl;
+    public function __construct(Rescuer $rescuer, $frontendUrl)
     {
         $this->rescuer = $rescuer;
+        $this->frontendUrl = $frontendUrl;
     }
 
     public function build()
     {
-        $verificationUrl = url('/rescuer/verify/' . $this->rescuer->verification_token);
-
         return $this->subject('Verify Your Email Address')
                     ->view('emails.verify-rescuer')
                     ->with([
                         'rescuer' => $this->rescuer,
-                        'verificationUrl' => $verificationUrl,
+                        'verificationUrl' => $this->frontendUrl,
                     ]);
     }
 }

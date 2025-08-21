@@ -53,7 +53,8 @@ class RescuerAuthController extends Controller
         $success_message = Settings::where('key', 'rescuer_success_message')->first();
 
         try {
-            Mail::to($rescuer->email)->send(new \App\Mail\VerifyRescuerEmail($rescuer));
+            $verificationUrl = url('/rescuer/verify/' . $rescuer->verification_token);
+            Mail::to($rescuer->email)->send(new \App\Mail\VerifyRescuerEmail($rescuer, $verificationUrl));
             return response()->json([
                 'message' => $success_message ? $success_message->value : 'Request submitted successfully.',
                 'token' => $token,

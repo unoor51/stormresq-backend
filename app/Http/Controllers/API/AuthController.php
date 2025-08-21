@@ -40,7 +40,9 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         try {
-            // Mail::to($user->email)->send(new \App\Mail\VerifyRescuerEmail($user));
+            // $verificationUrl = url('/user/verify/' . $user->verification_token);
+            // Mail::to($user->email)->send(new \App\Mail\VerifyRescuerEmail($user,$verificationUrl));
+
             return response()->json([
                 'message' => 'User registered. Please check your email to verify.',
                 'token' => $token,
@@ -90,4 +92,61 @@ class AuthController extends Controller
         ]);
     }
 
+    // Send password reet link to the email
+    public function sendResetLinkEmail(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email|exists:rescuers,email',
+        ]);
+
+        $user = User::where('email', $validated['email'])->first();
+
+        // Generate token and save to password_resets table
+        $token = \Str::random(64);
+        \DB::table('password_resets')->updateOrInsert(
+            ['email' => $user->email],
+            [
+                'email' => $user->email,
+                'token' => \Hash::make($token),
+                'created_at' => now()
+            ]
+        );
+
+        $frontendUrl = url('/user/reset-password?token=' . $token.'&email='.$user->email);
+
+        // Send custom reset email
+        // Mail::to($user->email)->send(new RescuerResetPassword($user->first_name, $frontendUrl));
+
+        return response()->json(['message' => 'Reset link sent successfully']);
+    }
+
+    // Reset Password Function
+    public function resetPassword(Request $request)
+    {
+        $request->validate([
+            'token' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|min:6|confirmed',
+        ]);
+
+        $status = Password::broker('rescuers')->reset(
+            $request->only('email', 'password', 'password_confirmation', 'token'),
+            function ($rescuer, $password) {
+                $rescuer->password = bcrypt($password);
+                $rescuer->save();
+            }
+        );
+
+        return $status === Password::PASSWORD_RESET
+            ? response()->json(['message' => 'Password has been reset.'])
+            : response()->json(['message' => 'Invalid token or email'], 400);
+    }
+
+    //  User Logout functionlaity
+    public function logout(Request $request)
+    {
+        $request->user()->tokens()->delete();
+
+        return response()->json(['message' => 'Logout successful']);
+    }
 }

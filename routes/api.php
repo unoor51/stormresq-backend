@@ -18,9 +18,21 @@ use App\Http\Controllers\API\AuthController;
 |
 */
 // User Auth Routes
-Route::post('/user/signup', [AuthController::class, 'register']);
-Route::post('/user/login', [AuthController::class, 'login']);
-Route::get('/user/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
+Route::prefix('user')->group(function () { 
+    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::get('/verify/{id}/{hash}', [AuthController::class, 'verifyEmail'])->name('verification.verify');
+    
+    Route::post('/forgot-password', [AuthController::class, 'sendResetLinkEmail']);
+    Route::post('/reset-password', [AuthController::class, 'resetPassword']);
+
+    Route::middleware(['auth:sanctum'])->group(function () {
+        Route::post('/logout', [AuthController::class, 'logout']);
+
+    });
+});
+
+
 
 Route::middleware('auth:sanctum')->get('/user/profile', [AuthController::class, 'profile']);
 
