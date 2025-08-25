@@ -25,6 +25,9 @@ class AuthController extends Controller
             'address' => 'required|string',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
+            'peopleCount' => 'required|integer|min:1',
+            'needsPet' => 'boolean',
+            'needsDisabled' => 'boolean',
         ]);
 
         $name = $request->first_name." ".$request->last_name;
@@ -38,6 +41,9 @@ class AuthController extends Controller
             'latitude' => $validated['latitude'],
             'longitude' => $validated['longitude'],
             'verification_token' => Str::random(64),
+            'people_count' => $validated['peopleCount'],
+            'pets' => $validated['needsPet'] ?? false,
+            'disabled' => $validated['needsDisabled'] ?? false,
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;

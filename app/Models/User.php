@@ -26,6 +26,9 @@ class User extends Authenticatable
         'latitude',
         'longitude',
         'verification_token',
+        'pets',
+        'disabled',
+        'people_count',
     ];
 
     /**
