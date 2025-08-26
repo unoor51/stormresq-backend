@@ -19,11 +19,17 @@ class Evacuee extends Model
         'rescuer_id',
         'status', 
         'address',
-        'request_for'
+        'request_for',
+        'user_id'
     ];
     
     public function rescuer()
     {
         return $this->belongsTo(Rescuer::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }
