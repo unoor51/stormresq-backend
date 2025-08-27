@@ -23,23 +23,47 @@ class EvacueeController extends Controller
             'request_for' => 'required|in:myself,someone',
         ]);
 
-        $evacuee = Evacuee::create([
-            'phone' => $validated['phone'],
+        $evacueeData = [
+            'phone'        => $validated['phone'],
             'people_count' => $validated['peopleCount'],
-            'situation' => $validated['situation'],
-            'needs_pet' => $validated['needsPet'] ?? false,
+            'situation'    => $validated['situation'],
+            'needs_pet'    => $validated['needsPet'] ?? false,
             'needs_disabled' => $validated['needsDisabled'] ?? false,
-            'latitude' => $validated['latitude'] ?? null,
-            'longitude' => $validated['longitude'] ?? null,
-            'status' => 'pending',
-            'address' => $validated['address'] ?? null,
-            'request_for' => $validated['request_for'],
-        ]);
+            'latitude'     => $validated['latitude'] ?? null,
+            'longitude'    => $validated['longitude'] ?? null,
+            'status'       => 'pending',
+            'address'      => $validated['address'] ?? null,
+            'request_for'  => $validated['request_for'],
+        ];
+
+        // Attach user_id if logged in
+        if (!empty($request->user_id)) {
+            $evacueeData['user_id'] =  $request->user_id;
+        }
+
+        $evacuee = Evacuee::create($evacueeData);
 
         $success_message = Settings::where('key', 'evacuee_success_message')->first();
+
         return response()->json([
             'message' => $success_message ? $success_message->value : 'Request submitted successfully.',
-            'data' => $evacuee
+            'data'    => $evacuee,
         ], 201);
     }
+    // User requests
+    public function myRequests(Request $request)
+    {
+        $user = $request->user();
+        $status = $request->query('status', 'pending'); // default pending
+
+        $requests = Evacuee::where('user_id', $user->id)
+            ->where('status', $status)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'requests' => $requests
+        ]);
+    }
+
 }

@@ -184,10 +184,22 @@ class AuthController extends Controller
             'name' => 'required|string|max:100',
             'phone' => 'required|string',
             'password' => 'nullable|min:6',
+            'people_count' => 'required|integer|min:1',
+            'pets' => 'boolean',
+            'disabled' => 'boolean',
+            'address' => 'required|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
         ]);
 
         $rescuer->name = $validated['name'];
         $rescuer->phone = $validated['phone'];
+        $rescuer->people_count = $validated['people_count'];
+        $rescuer->pets =  $validated['pets'] ?? false;
+        $rescuer->disabled =  $validated['disabled'] ?? false;
+        $rescuer->address =  $validated['address'];
+        $rescuer->latitude =  $validated['latitude'];
+        $rescuer->longitude =  $validated['longitude'];
 
         if (!empty($validated['password'])) {
             $rescuer->password = Hash::make($validated['password']);

@@ -30,6 +30,8 @@ Route::prefix('user')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
         Route::get('/profile', [AuthController::class, 'profile']);
         Route::put('/profile', [AuthController::class, 'updateProfile']);
+        Route::get('/my-requests', [EvacueeController::class, 'myRequests']);
+
     });
 });
 
@@ -56,7 +58,6 @@ Route::prefix('rescuer')->group(function () {
     Route::middleware('auth:sanctum')->get('/completed-rescues', [RescuerAuthController::class, 'completedRescues']);
     Route::middleware('auth:sanctum')->get('/cancelled-rescues', [RescuerAuthController::class, 'cancelledRescues']);
     Route::middleware('auth:sanctum')->get('/available-rescues', [RescuerAuthController::class, 'availableRescues']);
-    Route::middleware('auth:sanctum')->post('/assign/{id}', [RescuerAuthController::class, 'assignRescue']);
     Route::middleware('auth:sanctum')->post('/assign/{id}', [RescuerAuthController::class, 'assignRescue']);
     Route::middleware('auth:sanctum')->post('/cancel/{id}', [RescuerAuthController::class, 'cancelRescue']);
     Route::middleware('auth:sanctum')->post('/complete/{id}', [RescuerAuthController::class, 'completeRescue']);
